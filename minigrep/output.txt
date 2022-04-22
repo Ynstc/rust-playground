@@ -1,0 +1,7 @@
+Searching for "Ipsum"
+In file "poem.txt"
+ What is Lorem Ipsum?
+ Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+ Lorem Ipsum passages, and more recently with desktop publishing
+ software like Aldus PageMaker including versions of Lorem Ipsum.
