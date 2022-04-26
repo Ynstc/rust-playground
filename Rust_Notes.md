@@ -78,5 +78,3 @@ The rules of References
     }
 
 2. References must always be valid.
-
-test
