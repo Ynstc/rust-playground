@@ -5,7 +5,6 @@ fn main() {
     // lifetime_working_example();
     // lifetime_not_working_example();
     // lifetimes_in_struct();
-    combo_generic_traits_lifetime();
 }
 
 // Borrow checker check lifetime and print warning if you use reference to variable which already 'died',
