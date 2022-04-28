@@ -1,5 +1,5 @@
 [package]
-name = "minigrep"
+name = "lgr15_minigrep"
 version = "0.1.0"
 edition = "2021"
 

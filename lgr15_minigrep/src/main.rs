@@ -1,7 +1,7 @@
 use std::env;
 use std::process;
 
-use minigrep::Config;
+use lgr15_minigrep::Config;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -15,7 +15,7 @@ fn main() {
     println!("Searching for {:?}", config.query);
     println!("In file {:?}", config.filename);
 
-    if let Err(e) = minigrep::run(config) {
+    if let Err(e) = lgr15_minigrep::run(config) {
         eprintln!("App Error: {}", e);
         process::exit(1);
     }
