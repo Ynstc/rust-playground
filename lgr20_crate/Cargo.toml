@@ -1,0 +1,19 @@
+[package]
+name = "lgr20_crate"
+version = "0.1.0"
+author=["Ynstc"]
+edition = "2021"
+description = "testing purpose of uploading a crate"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+
+#opt-level range: 0-3
