@@ -18,6 +18,7 @@ fn main() {
     drop_trait_order();
     drop_trait_manually();
     reference_counting_print();
+    rc_and_ref_cell();
 }
 
 /* 22.0.1 The box smart pointer */
@@ -82,8 +83,8 @@ fn hello(name: &str) {
 
 /* 22.2.0 Drop Trait */
 
-struct CustomSmartPointer{
-    data: String
+struct CustomSmartPointer {
+    data: String,
 }
 
 impl Drop for CustomSmartPointer {
@@ -92,7 +93,7 @@ impl Drop for CustomSmartPointer {
     }
 }
 
-fn drop_trait_order(){
+fn drop_trait_order() {
     let c = CustomSmartPointer {
         data: String::from("my stuff"),
     };
@@ -103,7 +104,6 @@ fn drop_trait_order(){
     //run and note that drop frees heap with LIFO order (reverse order)
 }
 
-
 fn drop_trait_manually() {
     let c = CustomSmartPointer {
         data: String::from("some data"),
@@ -113,10 +113,9 @@ fn drop_trait_manually() {
     // drop cannot be use directly
     drop(c); //different method than ours. Rust standard library
     println!("CustomerSmartPointer dropped before the end of main.")
-
 }
 
-/* 23.0.0 reference counting */
+/* 23.0.0 Reference Counting */
 enum List2 {
     Cons2(i32, Box<List2>),
     Nil2,
@@ -136,12 +135,12 @@ use std::rc::Rc;
 
 enum List3 {
     Cons3(i32, Rc<List3>),
-    Nil3
+    Nil3,
 }
 
-use crate::List3::{Cons3,Nil3};
+use crate::List3::{Cons3, Nil3};
 
-fn reference_counting_refactored(){
+fn reference_counting_refactored() {
     let a = Rc::new(Cons3(5, Rc::new(Cons3(10, Rc::new(Nil3)))));
     let b = Cons3(3, a.clone()); //this and
     let c = Cons3(4, Rc::clone(&a)); //that - both works the same
@@ -149,7 +148,7 @@ fn reference_counting_refactored(){
 
 /* 23.0.1 example of refererence counting */
 
-fn reference_counting_print(){
+fn reference_counting_print() {
     let a = Rc::new(Cons3(5, Rc::new(Cons3(10, Rc::new(Nil3)))));
     println!("count after creating a = {}", Rc::strong_count(&a));
 
@@ -161,4 +160,125 @@ fn reference_counting_print(){
         println!("count after creating c = {}", Rc::strong_count(&a));
     }
     println!("count after c goes out of scope = {}", Rc::strong_count(&a));
+}
+
+/* 24.0.0 Interior Mutability */
+// Smart boxes checked borrow rules at compiler time
+// RefCell checked borrow rules at runtime
+fn example_for_checking_hints() {
+    // uncomment to see rust hints
+
+    // let a = 5;
+    // let b = &mut a;
+
+    // let mut c = 10;
+    // let d = &c;
+    // *d = 20;
+}
+
+/* 24.0.1 Use case Interior Mutability pattern */
+pub trait Messenger {
+    fn send(&self, msg: &str);
+}
+
+pub struct LimitTracker<'a, T: Messenger> {
+    messenger: &'a T,
+    value: usize,
+    max: usize,
+}
+
+impl<'a, T> LimitTracker<'a, T>
+where
+    T: Messenger,
+{
+    pub fn new(messenger: &T, max: usize) -> LimitTracker<T> {
+        LimitTracker {
+            messenger,
+            value: 0,
+            max,
+        }
+    }
+
+    pub fn set_value(&mut self, value: usize) {
+        self.value = value;
+
+        let percentage_of_max = self.value as f64 / self.max as f64;
+
+        if percentage_of_max >= 1.0 {
+            self.messenger.send("Error: You are over you quota!")
+        } else if percentage_of_max >= 0.9 {
+            self.messenger
+                .send("Urgent warning You've used up over 90% of your quota !")
+        } else if percentage_of_max >= 0.75 {
+            self.messenger
+                .send("Urgent warning You've used up over 75% of your quota!")
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::cell::RefCell;
+
+    struct MockMessenger {
+        sent_messages: RefCell<Vec<String>>,
+    }
+
+    impl MockMessenger {
+        fn new() -> MockMessenger {
+            MockMessenger {
+                sent_messages: RefCell::new(vec![]),
+            }
+        }
+    }
+
+    impl Messenger for MockMessenger {
+        fn send(&self, msg: &str) {
+            //RefCell check ruls at runtime and borrowing rules says: you cannot have two references at the same time
+           let mut one_borrow = self.sent_messages.borrow_mut();
+        //    let mut two_borrow = self.sent_messages.borrow_mut(); //can't see any static error but error during running code (test)
+
+            one_borrow.push(String::from(msg));
+            // two_borrow.push(String::from(msg));
+        }
+    }
+
+    #[test]
+    fn it_sends_an_over_75_percent_warning_message() {
+        let mock_messenger = MockMessenger::new();
+        let mut limit_tracker = LimitTracker::new(&mock_messenger, 100);
+
+        limit_tracker.set_value(80);
+
+        assert_eq!(mock_messenger.sent_messages.borrow().len(), 1);
+    }
+}
+
+/* 24.0.2 Rc and RefCell */
+
+#[derive(Debug)]
+enum  List4 {
+    Cons4(Rc<RefCell<i32>>, Rc<List4>),
+    Nil4
+}
+
+use crate::List4::{Cons4, Nil4};
+use std::cell::RefCell;
+
+
+
+fn rc_and_ref_cell() {
+    let value = Rc::new(RefCell::new(5));
+
+    let a = Rc::new(Cons4(Rc::clone(&value), Rc::new(Nil4)));
+
+    let b = Cons4(Rc::new(RefCell::new(3)), Rc::clone(&a));
+    let c = Cons4(Rc::new(RefCell::new(4)), Rc::clone(&a));
+
+    *value.borrow_mut() += 10;
+
+    println!("a after = {:?}", a);
+    println!("b after = {:?}", b);
+    println!("c after = {:?}", c);
 }
