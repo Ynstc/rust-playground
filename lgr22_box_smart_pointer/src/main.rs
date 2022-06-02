@@ -239,7 +239,7 @@ mod tests {
 
     impl Messenger for MockMessenger {
         fn send(&self, msg: &str) {
-            //RefCell check ruls at runtime and borrowing rules says: you cannot have two references at the same time
+            //RefCell check rules at runtime and borrowing rules says: you cannot have two references at the same time
             let mut one_borrow = self.sent_messages.borrow_mut();
             //    let mut two_borrow = self.sent_messages.borrow_mut(); //can't see any static error but error during running code (test)
 
@@ -325,7 +325,7 @@ fn reference_cycles() {
     println!("b rc count after changing a = {}", Rc::strong_count(&b));
     println!("a rc count after changing a = {}", Rc::strong_count(&a));
 
-    // Uncomentthe next line to see that we have a cycle;
+    // Uncomment the next line to see that we have a cycle;
     // ut will overflow the stack
     // println!("a next item = {:?}", a.tail())
 }

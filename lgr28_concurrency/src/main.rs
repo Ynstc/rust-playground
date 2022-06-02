@@ -11,9 +11,13 @@ fn main() {
     closures_with_thread();
 
     // 28.1
-    single_message_passing();
-    array_message_passing();
-    multiple_producers();
+    // single_message_passing();
+    // array_message_passing();
+    // multiple_producers();
+
+    // 28.2
+    example_mutex();
+    sharing_mutex_between_threads();
 }
 
 /* 28.0.1 thread duration */
@@ -55,7 +59,7 @@ fn closures_with_thread() {
 use std::sync::mpsc;
 // use std::thread;
 
-fn single_message_passing(){
+fn single_message_passing() {
     let (tx, rx) = mpsc::channel();
 
     thread::spawn(move || {
@@ -88,7 +92,7 @@ fn array_message_passing() {
 
     for received in rx {
         println!("Got {}", received)
-    };
+    }
     println!("---\n");
 }
 
@@ -127,6 +131,50 @@ fn multiple_producers() {
 
     for received in rx {
         println!("Got {}", received)
-    };
+    }
+    println!("---\n");
+}
+
+/* 28.2.0 sharing state */
+
+// when using mutex remember to:
+// 1. acquire a lock to data
+// 2. release a lock to data
+
+use std::sync::{Arc, Mutex};
+// use std::thread;
+
+fn example_mutex() {
+    let m = Mutex::new(5);
+
+    {
+        let mut num = m.lock().unwrap();
+        *num = 6;
+    }
+
+    println!("m = {:?}", m);
+    println!("---\n");
+}
+
+fn sharing_mutex_between_threads() {
+    let counter = Arc::new(Mutex::new(0));
+    let mut handles = vec![];
+
+    for _ in 0..10 {
+        let counter = Arc::clone(&counter);
+        let handle = thread::spawn(move || {
+            let mut num = counter.lock().unwrap();
+
+            *num += 1;
+        });
+
+        handles.push(handle);
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    println!("Result: {}", *counter.lock().unwrap());
     println!("---\n");
 }
