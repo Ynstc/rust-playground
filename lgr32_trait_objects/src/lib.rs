@@ -6,7 +6,7 @@ pub trait Draw {
 }
 
 pub struct Screen {
-    pub components: Vec<Box<dyn Draw>>
+    pub components: Vec<Box<dyn Draw>>,
 }
 
 impl Screen {
