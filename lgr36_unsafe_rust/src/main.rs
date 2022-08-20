@@ -142,6 +142,6 @@ unsafe impl Foo for i32 {
 /*
  * A union is similar to struct but only one field is used
  * for each instance. Unions are primarily used to interface with c unions
- * and its unsafe to access fields of a union because rust can't guearanee
+ * and its unsafe to access fields of a union because rust can't guarantee
  * what the type of data stored in the union is for a given instance.
  */
