@@ -4,7 +4,7 @@ fn main() {
     // fn_as_argument();
     // to_string_closure();
 
-    returns_closure()
+    returns_closure(2);
 }
 
 /* 39.1.0 pass fn as argument */
