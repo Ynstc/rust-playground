@@ -1,0 +1,10 @@
+[package]
+name = "lgr41_procedural_macros"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lgr41_hello_macro = { path = "../lgr41_hello_macro"}
+lgr41_hello_macro_derive = { path = "../lgr41_hello_macro/lgr41_hello_macro_derive"}
